@@ -1,1 +1,5 @@
-__ALL__ = ['cmd']
+__ALL__ = [
+    'cmd',
+    'modules',
+    'views'
+]
