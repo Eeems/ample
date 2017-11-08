@@ -20,6 +20,12 @@ class InboxModel(object):
             finally:
                 self.handle = None
 
+    def get(self, uid):
+        if not self.connected:
+            return None
+
+        return self.handle.fetch_by_uid(uid)
+
     @property
     def connected(self):
         return self.handle is not None
@@ -33,6 +39,6 @@ class InboxModel(object):
         options = []
         for uid, email in self.unread:
             sent_from = ', '.join([x['name'] for x in email.sent_from])
-            options.append(([sent_from, email.subject], int(uid)))
+            options.append(([sent_from, email.subject], uid))
 
         return options
