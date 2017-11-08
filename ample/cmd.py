@@ -1,8 +1,8 @@
 import sys
 from traceback import format_exc
 from decopts import entrypoint
-from .views import MainView
-from asciimatics.scene import Scene
+from .views import scenes
+from .models import InboxModel
 from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError
 
@@ -24,12 +24,13 @@ def main():
 
 def view(screen, scene):
     screen.play(
-        [Scene([MainView(screen)])],
+        scenes(screen, inbox),
         stop_on_resize=True,
         start_scene=scene
     )
 
 
+inbox = InboxModel()
 if __name__ == '__main__':
     try:
         main()
