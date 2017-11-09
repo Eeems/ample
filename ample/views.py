@@ -1,7 +1,9 @@
 from asciimatics.widgets import Frame, Layout, Label, Button, MultiColumnListBox, Text, Divider, TextBox
-from asciimatics.scene import Scene
 from asciimatics.exceptions import StopApplication, NextScene
+from asciimatics.scene import Scene
+from html2text import html2text
 import json
+import mdv
 import os
 
 
@@ -12,8 +14,7 @@ class LoginView(Frame):
             10,
             50,
             has_shadow=True,
-            name='Login',
-            reduce_cpu=True
+            name='Login'
         )
         self.model = model
         layout = Layout([100])
@@ -164,7 +165,9 @@ class EmailView(Frame):
             'subject': email.subject,
             'from': ', '.join([x['name'] for x in email.sent_from]),
             'to': ', '.join([x['name'] for x in email.sent_to]),
-            'body': '\n'.join(email.body['plain']),
+            'body': mdv.main(
+                html2text('\n'.join(email.body['plain']).replace('\r', ''))
+            ),
             'date': email.date
         }
         self.save()
@@ -203,11 +206,17 @@ def view(name):
     if not hasattr(scenes, 'views'):
         return None
 
+    if name not in scenes.views:
+        raise ValueError('View %s does not exist' % (name))
+
     return scenes.views[name]
 
 
 def open_view(name):
-    if view(name) is None:
+    if not hasattr(scenes, 'views'):
+        return None
+
+    if name not in scenes.views:
         raise ValueError('View %s does not exist' % (name))
 
     raise NextScene(name)

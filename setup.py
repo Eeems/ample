@@ -1,11 +1,15 @@
 from setuptools import setup
 from codecs import open
 from os import path
-import pypandoc
 
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), 'w') as f:
-    long_description = pypandoc.convert_file('README.md', 'rst')
+    try:
+        import pypandoc
+        long_description = pypandoc.convert_file('README.md', 'rst')
+    except ModuleNotFoundError:
+        with open(path.join(here, 'README.md'), 'r') as md:
+            long_description = '\n'.join(list(md))
     f.write(long_description + '\n')
 
 setup(
@@ -76,7 +80,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['envelopes', 'imbox', 'decopts'],
+    install_requires=['envelopes', 'imbox', 'decopts', 'html2text', 'mdv'],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,

@@ -1,4 +1,3 @@
-import atexit
 import sys
 from imbox import Imbox
 
@@ -7,38 +6,52 @@ assert sys.version_info >= (3, 0)
 
 class InboxModel(object):
     def __init__(self):
-        self.handle = None
-        atexit.register(self.logout)
+        self.args = None
+        self.kwds = None
+        self.connected = False
 
     def login(self, *args, **kwds):
-        self.handle = Imbox(*args, **kwds)
+        self.args = args
+        self.kwds = kwds
+        with Imbox(*args, **kwds):
+            self.connected = True
 
     def logout(self):
-        if self.handle is not None:
-            try:
-                self.handle.logout()
-            finally:
-                self.handle = None
+        self.connected = False
 
     def get(self, uid):
         if not self.connected:
             return None
 
-        return self.handle.fetch_by_uid(uid)
+        with self.handle() as handle:
+            res = handle.fetch_by_uid(uid)
 
-    @property
-    def connected(self):
-        return self.handle is not None
+        return res
 
     @property
     def unread(self):
-        return iter(()) if self.handle is None else self.handle.messages(unread=True)
+        if not self.connected:
+            return iter(())
+        with self.handle() as handle:
+            res = list(handle.messages(unread=True))
+
+        return res
 
     @property
     def unread_options(self):
+        if not self.connected:
+            return iter(())
+
         options = []
-        for uid, email in self.unread:
-            sent_from = ', '.join([x['name'] for x in email.sent_from])
-            options.append(([sent_from, email.subject], uid))
+        with self.handle() as handle:
+            for uid, email in handle.messages(unread=True):
+                sent_from = ', '.join([x['name'] for x in email.sent_from])
+                options.append(([sent_from, email.subject], uid))
 
         return options
+
+    def handle(self):
+        if not self.connected:
+            raise Exception('Not connected')
+
+        return Imbox(*self.args, **self.kwds)
