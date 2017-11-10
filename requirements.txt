@@ -1,0 +1,7 @@
+setuptools==34.3.2
+imbox==0.9
+mdv==1.6.3
+html2text==2017.10.4
+decopts==1.0.2
+pypandoc==1.4
+-e git+https://github.com/peterbrittain/asciimatics.git@master#egg=asciimatics
