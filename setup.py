@@ -3,14 +3,22 @@ from codecs import open
 from os import path
 
 here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'README.rst'), 'w') as f:
-    try:
-        import pypandoc
+rst = path.join(here, 'README.rst')
+try:
+    import pypandoc
+    with open(rst, 'w') as f:
         long_description = pypandoc.convert_file('README.md', 'rst')
-    except ModuleNotFoundError:
-        with open(path.join(here, 'README.md'), 'r') as md:
-            long_description = '\n'.join(list(md))
-    f.write(long_description + '\n')
+        f.write(long_description + '\n')
+
+except ModuleNotFoundError:
+    if path.exists(rst):
+        md = open(rst, 'r')
+
+    else:
+        md = open(path.join(here, 'README.md'), 'r')
+
+    long_description = '\n'.join(list(md))
+    md.close()
 
 setup(
     name='ample',
